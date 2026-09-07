@@ -1,5 +1,10 @@
 // Telegram link builders.
 //
+// This module is also the engine behind the hosted generator at
+// adminhub.tools/tools/telegram-link-generator/ — the two copies are
+// independent files, so a change to a link format or a validation rule
+// belongs in both.
+//
 // Every format here is copied from a line in Telegram's own documentation and
 // nothing else is invented: an "almost right" deep link fails silently — the
 // client opens the chat and drops the payload — so a generator that guesses is
