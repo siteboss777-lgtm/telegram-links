@@ -1,6 +1,6 @@
 {
   "name": "telegram-links",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Build and validate every t.me and tg:// link format Telegram documents: bot deep links, Mini App links, share, phone, public and private post links. No dependencies, no network calls.",
   "keywords": [
     "telegram",

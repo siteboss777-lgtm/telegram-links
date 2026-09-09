@@ -86,12 +86,12 @@ the `telegram.me` and `telegram.dog` hosts, the `name.t.me` subdomain form, and
 
 | Type | Builder | `https` form | Telegram docs |
 | --- | --- | --- | --- |
-| profile | `buildProfileLink` | `t.me/<username>` | [Public username links](https://core.telegram.org/api/links#public-username-links) |
+| profile | `buildProfileLink` | `t.me/<username>`, with a draft `t.me/<username>?text=<draft_text>` | [Public username links](https://core.telegram.org/api/links#public-username-links) |
 | bot | `buildBotStartLink` | `t.me/<bot_username>?start=<parameter>` | [Bot links](https://core.telegram.org/api/links#bot-links) |
 | startgroup | `buildStartGroupLink` | `t.me/<bot_username>?startgroup=<parameter>` | [Group/channel bot links](https://core.telegram.org/api/links#group-channel-bot-links) |
 | miniapp | `buildMiniAppLink` | `t.me/<bot_username>/<short_name>?startapp=<parameter>` | [Direct mini app links](https://core.telegram.org/api/links#direct-mini-app-links), [Main Mini App links](https://core.telegram.org/api/links#main-mini-app-links) |
 | share | `buildShareLink` | `t.me/share/url?url=<url>&text=<text>` | [Share links](https://core.telegram.org/api/links#share-links) |
-| phone | `buildPhoneLink` | `t.me/+<phone_number>` | [Phone number links](https://core.telegram.org/api/links#phone-number-links) |
+| phone | `buildPhoneLink` | `t.me/+<phone_number>`, with a draft `t.me/+<phone_number>?text=<draft_text>` | [Phone number links](https://core.telegram.org/api/links#phone-number-links) |
 | post | `buildPostLink` | `t.me/<username>/<id>` | [Message links](https://core.telegram.org/api/links#message-links) |
 | privatepost | `buildPrivatePostLink` | `t.me/c/<channel>/<id>` | [Message links](https://core.telegram.org/api/links#message-links) |
 

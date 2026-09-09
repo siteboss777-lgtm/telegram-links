@@ -318,11 +318,31 @@ export function validatePhone(digits: string): ErrorCode | null {
 // ---------------------------------------------------------------------------
 
 /**
- * Public username link — a user, a group or a channel.
- * Docs: `t.me/<username>` and `tg://resolve?domain=<username>`.
+ * Draft text for a username or phone link, percent-encoded, or '' when there is
+ * nothing to pre-type. Docs (core.telegram.org/api/links, "Public username
+ * links" and "Phone number links"): `?text=<draft_text>` is "UTF-8 text to
+ * pre-enter into the text input bar, if the user can write in the chat". The
+ * client itself trims the draft to the message length limit and guards a
+ * leading `@`, so nothing beyond encoding is done here. Blank text is treated
+ * as absent: a link that opens a chat with three spaces typed in helps nobody.
  */
-export function buildProfileLink(username: string): LinkPair {
-  return { https: `${TME}/${username}`, tg: `tg://resolve?domain=${username}` };
+function encodeDraft(text: string = ''): string {
+  const draft = (text ?? '').trim();
+  return draft ? encodeURIComponent(draft) : '';
+}
+
+/**
+ * Public username link — a user, a group or a channel.
+ * Docs: `t.me/<username>` and `tg://resolve?domain=<username>`; with a draft,
+ * `t.me/<username>?text=<draft_text>` and
+ * `tg://resolve?domain=<username>&text=<draft_text>`.
+ */
+export function buildProfileLink(username: string, text: string = ''): LinkPair {
+  const draft = encodeDraft(text);
+  return {
+    https: `${TME}/${username}${draft ? `?text=${draft}` : ''}`,
+    tg: `tg://resolve?domain=${username}${draft ? `&text=${draft}` : ''}`,
+  };
 }
 
 /**
@@ -404,12 +424,18 @@ export function buildShareLink(url: string, text: string = ''): LinkPair {
 
 /**
  * Phone number link.
- * Docs: `t.me/+<phone_number>` and `tg://resolve?phone=<phone_number>`.
+ * Docs: `t.me/+<phone_number>` and `tg://resolve?phone=<phone_number>`; with a
+ * draft, `t.me/+<phone_number>?text=<draft_text>` and
+ * `tg://resolve?phone=<phone_number>&text=<draft_text>`.
  * Resolves only if the recipient's privacy settings allow being found by
  * phone number — the FAQ says so explicitly.
  */
-export function buildPhoneLink(digits: string): LinkPair {
-  return { https: `${TME}/+${digits}`, tg: `tg://resolve?phone=${digits}` };
+export function buildPhoneLink(digits: string, text: string = ''): LinkPair {
+  const draft = encodeDraft(text);
+  return {
+    https: `${TME}/+${digits}${draft ? `?text=${draft}` : ''}`,
+    tg: `tg://resolve?phone=${digits}${draft ? `&text=${draft}` : ''}`,
+  };
 }
 
 /**

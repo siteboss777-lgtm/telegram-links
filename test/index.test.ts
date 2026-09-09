@@ -262,6 +262,38 @@ test('buildPhoneLink: t.me/+<digits> and tg://resolve?phone=<digits>', () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// Draft text — the WhatsApp-style "write to me" link with a message pre-typed
+// ---------------------------------------------------------------------------
+
+test('buildProfileLink with draft text: t.me/<username>?text=<draft_text> and tg://resolve?domain=<username>&text=<draft_text>', () => {
+  assert.deepEqual(buildProfileLink('durov', 'Olá, vim pelo site'), {
+    https: 'https://t.me/durov?text=Ol%C3%A1%2C%20vim%20pelo%20site',
+    tg: 'tg://resolve?domain=durov&text=Ol%C3%A1%2C%20vim%20pelo%20site',
+  });
+});
+
+test('buildPhoneLink with draft text: t.me/+<phone_number>?text=<draft_text> and tg://resolve?phone=<phone_number>&text=<draft_text>', () => {
+  assert.deepEqual(buildPhoneLink('5511987654321', 'Oi! Quero saber mais'), {
+    https: 'https://t.me/+5511987654321?text=Oi!%20Quero%20saber%20mais',
+    tg: 'tg://resolve?phone=5511987654321&text=Oi!%20Quero%20saber%20mais',
+  });
+});
+
+test('an empty or blank draft leaves the plain link untouched', () => {
+  assert.deepEqual(buildProfileLink('durov', ''), buildProfileLink('durov'));
+  assert.deepEqual(buildProfileLink('durov', '   '), buildProfileLink('durov'));
+  assert.deepEqual(buildPhoneLink('34600123456', ''), buildPhoneLink('34600123456'));
+});
+
+test('draft text encodes the characters that would end or break the query', () => {
+  // `&` would start a second parameter, `#` a fragment, `+` reads as a space
+  // on the receiving side, `?` must not open a second query.
+  const link = buildProfileLink('durov', 'a&b#c+d?e');
+  assert.equal(link.https, 'https://t.me/durov?text=a%26b%23c%2Bd%3Fe');
+  assert.equal(link.tg, 'tg://resolve?domain=durov&text=a%26b%23c%2Bd%3Fe');
+});
+
 test('buildPostLink: t.me/<username>/<id> and tg://resolve?domain=…&post=<id>', () => {
   assert.deepEqual(buildPostLink('durov', 123), {
     https: 'https://t.me/durov/123',
@@ -345,6 +377,8 @@ test('no builder ever emits a space or a raw newline', () => {
     buildMiniAppLink('your_bot', 'shop', 'promo42'),
     buildShareLink('https://example.com/a b', 'two words'),
     buildPhoneLink('34600123456'),
+    buildProfileLink('durov', 'two words'),
+    buildPhoneLink('34600123456', 'olá  mundo\n'),
     buildPostLink('durov', 1),
     buildPrivatePostLink('1234567890', 1),
   ];
