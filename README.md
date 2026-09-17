@@ -51,6 +51,20 @@ buildPrivatePostLink(channel, 45);
 // }
 ```
 
+The web preview of a public channel, and the embed code for one of its posts
+(the only builder that returns a string rather than a pair):
+
+```js
+buildPreviewLink('telegram');
+// {
+//   https: 'https://t.me/s/telegram',
+//   tg:    'tg://resolve?domain=telegram'   // the app has no «preview»; it opens the channel
+// }
+
+buildEmbedSnippet('durov', 68, { dark: true });
+// '<script async src="https://telegram.org/js/telegram-widget.js?1" data-telegram-post="durov/68" data-width="100%" data-dark="1"></script>'
+```
+
 A share link. The url is percent-encoded, so a query string inside it survives
 intact — an unencoded `&` would end the `url` parameter and hand the rest to
 Telegram as a separate argument:
@@ -94,6 +108,8 @@ the `telegram.me` and `telegram.dog` hosts, the `name.t.me` subdomain form, and
 | phone | `buildPhoneLink` | `t.me/+<phone_number>`, with a draft `t.me/+<phone_number>?text=<draft_text>` | [Phone number links](https://core.telegram.org/api/links#phone-number-links) |
 | post | `buildPostLink` | `t.me/<username>/<id>` | [Message links](https://core.telegram.org/api/links#message-links) |
 | privatepost | `buildPrivatePostLink` | `t.me/c/<channel>/<id>` | [Message links](https://core.telegram.org/api/links#message-links) |
+| preview | `buildPreviewLink` | `t.me/s/<username>` | Not a documented link scheme: it is the page Telegram itself links as «Preview channel» from every public channel's t.me profile. Groups and private channels have no preview — the address then opens the ordinary profile. |
+| embed | `buildEmbedSnippet` | returns a `<script>` tag, not a link | [Post widget](https://core.telegram.org/widgets/post) — the snippet the «< > EMBED» button hands out, byte for byte; `{ dark: true }` adds the page's `data-dark="1"` |
 
 The bot username rules (5–32 characters, Latin letters, digits and underscores,
 ending in `bot`) and the 64-character `start` parameter come from
@@ -136,7 +152,7 @@ link to nothing.
 It does not emit the documented `admin=<permissions>` flag on `startgroup`
 links, and it does not build the many other formats listed on the Deep links
 page (stickersets, themes, proxies, invoices, boosts and the rest) — only the
-eight in the table above.
+ten in the table above.
 
 ---
 

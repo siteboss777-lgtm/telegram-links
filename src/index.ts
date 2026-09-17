@@ -30,7 +30,9 @@ export type LinkType =
   | 'share'
   | 'phone'
   | 'post'
-  | 'privatepost';
+  | 'privatepost'
+  | 'preview'
+  | 'embed';
 
 export const LINK_TYPES: LinkType[] = [
   'profile',
@@ -41,6 +43,8 @@ export const LINK_TYPES: LinkType[] = [
   'phone',
   'post',
   'privatepost',
+  'preview',
+  'embed',
 ];
 
 /**
@@ -462,6 +466,50 @@ export function buildPrivatePostLink(internalChannelId: string, messageId: numbe
     https: `${TME}/c/${internalChannelId}/${messageId}`,
     tg: `tg://privatepost?channel=${internalChannelId}&post=${messageId}`,
   };
+}
+
+/**
+ * Web preview of a public channel.
+ * `t.me/s/<username>` is the page Telegram itself links from every public
+ * channel's t.me profile as «Preview channel»: the channel's posts, readable in
+ * a browser without an account. It is Telegram's own surface, not a documented
+ * link scheme, so the tool describes it as exactly that — and where Telegram
+ * shows no preview (groups, private channels, some channels) the address falls
+ * back to the ordinary profile page. Inside the app there is no «preview»: the
+ * tg:// form simply opens the channel.
+ */
+export function buildPreviewLink(username: string): LinkPair {
+  return {
+    https: `${TME}/s/${username}`,
+    tg: `tg://resolve?domain=${username}`,
+  };
+}
+
+/**
+ * Embed code for one post in a public channel — the snippet the «< > EMBED»
+ * button on core.telegram.org/widgets/post hands out, byte for byte:
+ * `<script async src="https://telegram.org/js/telegram-widget.js?1"
+ * data-telegram-post="<username>/<id>" data-width="100%"></script>`.
+ * `data-dark="1"` is the page's «Dark theme» option. Other options on that
+ * page (author photo, accent colour) are left to the reader — the snippet
+ * above is what Telegram gives by default.
+ *
+ * The username is validated upstream; the guard here only makes sure a value
+ * that would break out of the attribute can never be emitted.
+ */
+export function buildEmbedSnippet(
+  username: string,
+  messageId: number,
+  options: { dark?: boolean } = {},
+): string {
+  if (!/^[A-Za-z0-9_]+$/.test(username)) {
+    throw new Error(`invalid username for embed: ${username}`);
+  }
+  const dark = options.dark ? ' data-dark="1"' : '';
+  return (
+    `<script async src="https://telegram.org/js/telegram-widget.js?1" ` +
+    `data-telegram-post="${username}/${messageId}" data-width="100%"${dark}></script>`
+  );
 }
 
 // ---------------------------------------------------------------------------

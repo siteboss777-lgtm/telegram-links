@@ -23,6 +23,8 @@ import {
   buildPhoneLink,
   buildPostLink,
   buildPrivatePostLink,
+  buildPreviewLink,
+  buildEmbedSnippet,
   buildProfileLink,
   buildShareLink,
   buildStartGroupLink,
@@ -50,7 +52,7 @@ test('the documented limits are the ones in the code', () => {
   assert.equal(START_PAYLOAD_MAX, 64);
   assert.equal(PHONE_MIN_DIGITS, 6);
   assert.equal(PHONE_MAX_DIGITS, 15);
-  assert.equal(LINK_TYPES.length, 8);
+  assert.equal(LINK_TYPES.length, 10);
 });
 
 // ---------------------------------------------------------------------------
@@ -475,4 +477,35 @@ test('what the reader copies is untouched: builders still emit t.me', () => {
   for (const link of built) {
     assert.ok(link.startsWith('https://t.me/'), `expected the documented host: ${link}`);
   }
+});
+
+// ── preview (t.me/s) and post embed — added in 0.3.0 ─────────────────────
+
+test('LINK_TYPES includes preview and embed after the original eight', () => {
+  assert.deepEqual(LINK_TYPES.slice(-2), ['preview', 'embed']);
+});
+
+test('buildPreviewLink: t.me/s/<username> for the web, plain resolve for the app', () => {
+  assert.deepEqual(buildPreviewLink('telegram'), {
+    https: 'https://t.me/s/telegram',
+    tg: 'tg://resolve?domain=telegram',
+  });
+});
+
+test('buildEmbedSnippet: the exact script the widget page hands out', () => {
+  assert.equal(
+    buildEmbedSnippet('durov', 68),
+    '<script async src="https://telegram.org/js/telegram-widget.js?1" data-telegram-post="durov/68" data-width="100%"></script>',
+  );
+});
+
+test('buildEmbedSnippet: dark theme adds the documented data-dark="1"', () => {
+  assert.equal(
+    buildEmbedSnippet('durov', 68, { dark: true }),
+    '<script async src="https://telegram.org/js/telegram-widget.js?1" data-telegram-post="durov/68" data-width="100%" data-dark="1"></script>',
+  );
+});
+
+test('buildEmbedSnippet: a username that fails validation never reaches the attribute raw', () => {
+  assert.throws(() => buildEmbedSnippet('dur"ov', 1), /invalid/i);
 });
