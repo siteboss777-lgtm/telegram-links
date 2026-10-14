@@ -126,6 +126,10 @@ showing states the whole rule, not which half of it was broken.
 
 `normalizeUsername`, `normalizePhone`, `toInternalChannelId` and
 `parseMessageId` turn pasted input into the shape the builders expect.
+`normalizePhone` reads a leading `00` as the international prefix
+(`0034 600 123 456` → `34600123456`), and `validatePhone` rejects a number that
+still starts with `0`: no country calling code does, so it was written for
+local dialling and `t.me/+0…` would open nothing.
 
 `toBrowserLink` swaps the host on an `https://t.me/...` string to
 `https://telegram.me/...` for links your own code has to follow rather than

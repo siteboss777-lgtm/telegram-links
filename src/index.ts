@@ -216,9 +216,17 @@ export function normalizeUsername(input: string): string {
   return value.trim();
 }
 
-/** Keep the digits and throw away the punctuation people type into phone fields. */
+/**
+ * Keep the digits and throw away the punctuation people type into phone fields.
+ *
+ * A leading `00` is the international call prefix most of the world dials in
+ * place of `+`, so `0034 600…` is the same number as `+34 600…` and is read
+ * that way. A single 0 that remains is not stripped: no country calling code
+ * starts with 0, so it is a national trunk prefix — validatePhone says so
+ * rather than letting `t.me/+0…`, which opens nothing, through.
+ */
 export function normalizePhone(input: string): string {
-  return (input ?? '').replace(/\D+/g, '');
+  return (input ?? '').replace(/\D+/g, '').replace(/^00/, '');
 }
 
 /**
@@ -314,6 +322,8 @@ export function validateShareUrl(url: string): ErrorCode | null {
 export function validatePhone(digits: string): ErrorCode | null {
   if (!digits) return 'phone';
   if (digits.length < PHONE_MIN_DIGITS || digits.length > PHONE_MAX_DIGITS) return 'phone';
+  // International format starts with the country code, and none starts with 0.
+  if (digits.startsWith('0')) return 'phone';
   return null;
 }
 

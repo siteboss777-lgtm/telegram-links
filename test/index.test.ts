@@ -163,6 +163,21 @@ test('normalizePhone keeps digits and drops the typography', () => {
   assert.equal(normalizePhone(''), '');
 });
 
+test('normalizePhone reads a leading 00 as the international prefix', () => {
+  // 00 is what most of the world dials in place of +: 0034… is +34….
+  assert.equal(normalizePhone('0034 600 123 456'), '34600123456');
+  assert.equal(normalizePhone('00 55 11 98765-4321'), '5511987654321');
+  assert.equal(buildPhoneLink(normalizePhone('0034 600 123 456')).https, 'https://t.me/+34600123456');
+});
+
+test('validatePhone rejects a number that still starts with 0', () => {
+  // No country calling code begins with 0, so what is left is a national
+  // trunk prefix — a number written for local dialling. t.me/+0… opens nothing.
+  assert.equal(validatePhone(normalizePhone('0 800 123 4567')), 'phone');
+  assert.equal(validatePhone('034600123456'), 'phone');
+  assert.equal(validatePhone(normalizePhone('+0034 600 123 456')), null);
+});
+
 test('validatePhone holds the E.164 bounds', () => {
   assert.equal(validatePhone('34600123456'), null);
   assert.equal(validatePhone('1'.repeat(PHONE_MIN_DIGITS)), null);
